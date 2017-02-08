@@ -18,7 +18,9 @@ import android.view.animation.LinearInterpolator;
 import android.widget.RelativeLayout;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by booncol on 04.07.2016.
@@ -48,6 +50,7 @@ public class PulsatorLayout extends RelativeLayout {
     private int mInterpolator;
 
     private final List<View> mViews = new ArrayList<>();
+    private final Map<Animator, Long> delayMap = new HashMap<>();
     private AnimatorSet mAnimatorSet;
     private Paint mPaint;
     private float mRadius;
@@ -128,20 +131,22 @@ public class PulsatorLayout extends RelativeLayout {
      * Start pulse animation.
      */
     public synchronized void start() {
-        if (mAnimatorSet == null || mIsStarted) {
+        if (mIsStarted) {
             return;
+        }
+
+        if (mAnimatorSet == null) {
+            build();
         }
 
         mAnimatorSet.start();
 
         if (!mStartFromScratch) {
             ArrayList<Animator> animators = mAnimatorSet.getChildAnimations();
-            for (Animator animator : animators) {
-                ObjectAnimator objectAnimator = (ObjectAnimator) animator;
-
-                long delay = objectAnimator.getStartDelay();
+            for (int index = 0; index < animators.size(); index++) {
+                ObjectAnimator objectAnimator = (ObjectAnimator) animators.get(index);
                 objectAnimator.setStartDelay(0);
-                objectAnimator.setCurrentPlayTime(mDuration - delay);
+                objectAnimator.setCurrentPlayTime(mDuration - delayMap.get(objectAnimator));
             }
         }
     }
@@ -278,6 +283,7 @@ public class PulsatorLayout extends RelativeLayout {
     private void clear() {
         // remove animators
         stop();
+        delayMap.clear();
 
         // remove old views
         for (View view : mViews) {
@@ -297,6 +303,7 @@ public class PulsatorLayout extends RelativeLayout {
 
         int repeatCount = (mRepeat == INFINITE) ? ObjectAnimator.INFINITE : mRepeat;
 
+        delayMap.clear();
         List<Animator> animators = new ArrayList<>();
         for (int index = 0; index < mCount; index++) {
             // setup view
@@ -316,18 +323,21 @@ public class PulsatorLayout extends RelativeLayout {
             scaleXAnimator.setRepeatMode(ObjectAnimator.RESTART);
             scaleXAnimator.setStartDelay(delay);
             animators.add(scaleXAnimator);
+            delayMap.put(scaleXAnimator, delay);
 
             ObjectAnimator scaleYAnimator = ObjectAnimator.ofFloat(pulseView, "ScaleY", 0f, 1f);
             scaleYAnimator.setRepeatCount(repeatCount);
             scaleYAnimator.setRepeatMode(ObjectAnimator.RESTART);
             scaleYAnimator.setStartDelay(delay);
             animators.add(scaleYAnimator);
+            delayMap.put(scaleYAnimator, delay);
 
             ObjectAnimator alphaAnimator = ObjectAnimator.ofFloat(pulseView, "Alpha", 1f, 0f);
             alphaAnimator.setRepeatCount(repeatCount);
             alphaAnimator.setRepeatMode(ObjectAnimator.RESTART);
             alphaAnimator.setStartDelay(delay);
             animators.add(alphaAnimator);
+            delayMap.put(alphaAnimator, delay);
         }
 
         mAnimatorSet = new AnimatorSet();
@@ -375,8 +385,19 @@ public class PulsatorLayout extends RelativeLayout {
         super.onDetachedFromWindow();
 
         if (mAnimatorSet != null) {
+            mAnimatorSet.end();
             mAnimatorSet.cancel();
+            delayMap.clear();
             mAnimatorSet = null;
+        }
+    }
+
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+
+        if (mAnimatorSet == null) {
+            build();
         }
     }
 
