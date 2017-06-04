@@ -230,7 +230,7 @@ public class PulsatorLayout extends RelativeLayout {
     /**
      * Sets the current color of the pulse effect in integer
      * Takes effect immediately
-     * Usage: Color.parseColor("<hex-value>") or getResources().getColor(R.color.colorAccent)
+     * Usage: Color.parseColor("hex-value") or getResources().getColor(R.color.colorAccent)
      * @param color : an integer representation of color
      */
     public void setColor(int color) {

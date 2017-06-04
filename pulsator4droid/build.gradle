@@ -43,7 +43,7 @@ ext { // ./gradlew bintrayUpload -xJavadoc
 
 android {
     compileSdkVersion 25
-    buildToolsVersion "24.0.3"
+    buildToolsVersion "25.0.2"
 
     defaultConfig {
         minSdkVersion 11
