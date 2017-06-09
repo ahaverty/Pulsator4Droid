@@ -380,26 +380,26 @@ public class PulsatorLayout extends RelativeLayout {
         }
     }
 
-    @Override
-    protected void onDetachedFromWindow() {
-        super.onDetachedFromWindow();
-
-        if (mAnimatorSet != null) {
-            mAnimatorSet.end();
-            mAnimatorSet.cancel();
-            delayMap.clear();
-            mAnimatorSet = null;
-        }
-    }
-
-    @Override
-    protected void onAttachedToWindow() {
-        super.onAttachedToWindow();
-
-        if (mAnimatorSet == null) {
-            build();
-        }
-    }
+//    @Override
+//    protected void onDetachedFromWindow() {
+//        super.onDetachedFromWindow();
+//
+//        if (mAnimatorSet != null) {
+//            mAnimatorSet.end();
+//            mAnimatorSet.cancel();
+//            delayMap.clear();
+//            mAnimatorSet = null;
+//        }
+//    }
+//
+//    @Override
+//    protected void onAttachedToWindow() {
+//        super.onAttachedToWindow();
+//
+//        if (mAnimatorSet == null) {
+//            build();
+//        }
+//    }
 
     private class PulseView extends View {
 
